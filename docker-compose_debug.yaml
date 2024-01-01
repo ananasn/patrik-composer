@@ -1,0 +1,61 @@
+version: '3.8'
+services:
+
+  patrik-server:
+    image: ananasn/patrik:latest
+    container_name: patrik-server
+    environment:
+      - PULSE_SERVER=""
+      - PULSE_COOKIE=""
+    # volumes:
+    #   - /tmp/pulseaudio.socket:/tmp/pulseaudio.socket
+    #   - /tmp/pulseaudio.client.conf:/etc/pulse/client.conf
+    user: "1000:1000"
+    restart: always
+    network_mode: "host"
+  
+  patrik-front:
+    image: ananasn/patrik_front:latest
+    container_name: patrik-front
+    restart: always
+    network_mode: "host"
+    environment:
+      - "NGINX_PORT=8003"
+    volumes:
+       - ./templates:/etc/nginx/templates
+  
+  patrik-mimic:
+    image: ananasn/patrik_mimic:latest
+    container_name: patrik-mimic
+    restart: always
+    network_mode: "host"
+  
+  patrik-stream:
+    image: ananasn/patrik_stream:latest
+    container_name: patrik-stream
+    privileged: true
+    devices: 
+      - "dev/video0:/dev/video0"
+    restart: always
+    network_mode: "host"
+  
+  patrik-speech:
+    image: ananasn/patrik_speech:latest
+    container_name: patrik-speech
+    environment:
+      - PULSE_SERVER=""
+      - PULSE_COOKIE=""
+    # volumes:
+    #   - /tmp/pulseaudio.socket:/tmp/pulseaudio.socket
+    #   - /tmp/pulseaudio.client.conf:/etc/pulse/client.conf
+    user: "1000:1000"
+    restart: always
+    network_mode: "host"
+
+  patrik-face:
+    image: ananasn/patrik_face:latest
+    container_name: patrik-face
+    restart: always
+    depends_on:
+      - patrik-stream
+    network_mode: "host"

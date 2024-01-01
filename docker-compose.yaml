@@ -2,20 +2,24 @@ version: '3.8'
 services:
 
   patrik-server:
-    image: ananasn/patrik:latest
+    image: ananasn/patrik:orange
     container_name: patrik-server
+    devices: 
+      - "/dev/ttyS0:/dev/ttyS0"
     environment:
-      - PULSE_SERVER=""
-      - PULSE_COOKIE=""
-    # volumes:
-    #   - /tmp/pulseaudio.socket:/tmp/pulseaudio.socket
-    #   - /tmp/pulseaudio.client.conf:/etc/pulse/client.conf
+      - PULSE_SERVER="unix:/tmp/pulseaudio.socket"
+      - PULSE_COOKIE="/tmp/pulseaudio.cookie"
+    volumes:
+       - /tmp/pulseaudio.socket:/tmp/pulseaudio.socket
+       - /etc/pulse/client.conf:/etc/pulse/client.conf
     user: "1000:1000"
+    group_add:
+       - dialout
     restart: always
     network_mode: "host"
   
   patrik-front:
-    image: ananasn/patrik_front:latest
+    image: ananasn/patrik_front:orange
     container_name: patrik-front
     restart: always
     network_mode: "host"
@@ -25,13 +29,13 @@ services:
        - ./templates:/etc/nginx/templates
   
   patrik-mimic:
-    image: ananasn/patrik_mimic:latest
+    image: ananasn/patrik_mimic:orange
     container_name: patrik-mimic
     restart: always
     network_mode: "host"
   
   patrik-stream:
-    image: ananasn/patrik_stream:latest
+    image: ananasn/patrik_stream:orange
     container_name: patrik-stream
     privileged: true
     devices: 
@@ -39,21 +43,21 @@ services:
     restart: always
     network_mode: "host"
   
-  patrik-speech:
-    image: ananasn/patrik_speech:latest
-    container_name: patrik-speech
-    environment:
-      - PULSE_SERVER=""
-      - PULSE_COOKIE=""
-    # volumes:
-    #   - /tmp/pulseaudio.socket:/tmp/pulseaudio.socket
-    #   - /tmp/pulseaudio.client.conf:/etc/pulse/client.conf
-    user: "1000:1000"
-    restart: always
-    network_mode: "host"
+  # patrik-speech:
+  #   image: ananasn/patrik_speech:orange
+  #   container_name: patrik-speech
+  #   environment:
+  #     - PULSE_SERVER="unix:/tmp/pulseaudio.socket"
+  #     - PULSE_COOKIE="/tmp/pulseaudio.cookie"
+  #   volumes:
+  #      - /tmp/pulseaudio.socket:/tmp/pulseaudio.socket
+  #      - /etc/pulse/client.conf:/etc/pulse/client.conf
+  #   user: "1000:1000"
+  #   restart: always
+  #   network_mode: "host"
 
   patrik-face:
-    image: ananasn/patrik_face:latest
+    image: ananasn/patrik_face:orange
     container_name: patrik-face
     restart: always
     depends_on:
