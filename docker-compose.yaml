@@ -119,3 +119,14 @@ services:
     depends_on:
       - patrik-stream
     network_mode: "host"
+
+  patrik-schedule:
+    image: ananasn/patrik_schedule:orange
+    container_name: patrik-schedule
+    restart: always
+    depends_on:
+      - patrik-server
+      - db
+      - patrik-mimic
+      - patrik-say
+    network_mode: "host"
