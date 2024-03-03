@@ -8,11 +8,13 @@ services:
       - "/dev/ttyS0:/dev/ttyS0"
     volumes:
        - /home/orangepi/patrik/patrik-api/media:/home/orangepi/patrik_server/media
+       -  /home/orangepi/patrik/pipes:/hostpipe
     user: "1000:1000"
     group_add:
        - dialout
     restart: always
     network_mode: "host"
+
     
   patrik-say:
     image: ananasn/patrik_say:orange
@@ -36,6 +38,7 @@ services:
     restart: always
     user: "1000:1000"
     network_mode: "host" 
+
   
   db:
     image: postgres
@@ -47,6 +50,8 @@ services:
       - ./postgres-data:/var/lib/postgresql/data  
     environment:
       POSTGRES_HOST_AUTH_METHOD: "trust"
+    labels:
+      - com.centurylinklabs.watchtower.enable=false
  
   patrik-front:
     image: ananasn/patrik_front:orange
@@ -57,6 +62,7 @@ services:
       - "NGINX_PORT=8003"
     volumes:
        - ./templates:/etc/nginx/templates
+
   
   patrik-mimic:
     image: ananasn/patrik_mimic:orange
@@ -75,7 +81,7 @@ services:
       - "dev/video0:/dev/video0"
     restart: always
     network_mode: "host"
-  
+
 
   patrik-speech:
     image: ananasn/patrik_speech:orange
@@ -99,6 +105,7 @@ services:
     restart: always
     user: "1000:1000"
     network_mode: "host"
+
 
   # llama-gpt-api:
   #   # Pin the image to llama-cpp-python 0.1.78 to avoid ggml => gguf breaking changes
@@ -127,6 +134,8 @@ services:
     depends_on:
       - patrik-stream
     network_mode: "host"
+    labels:
+      - "com.centurylinklabs.watchtower.monitor-only=true"
 
   patrik-gesture:
     image: ananasn/patrik_gesture:orange
@@ -135,6 +144,7 @@ services:
     depends_on:
       - patrik-stream
     network_mode: "host"
+
 
   patrik-schedule:
     image: ananasn/patrik_schedule:orange
@@ -146,3 +156,80 @@ services:
       - patrik-mimic
       - patrik-say
     network_mode: "host"
+
+
+  watchtower:
+    image: containrrr/watchtower
+    environment:
+      WATCHTOWER_CLEANUP: true
+      WATCHTOWER_REMOVE_VOLUMES: true
+      WATCHTOWER_DEBUG: true
+      WATCHTOWER_TRACE: true
+      WATCHTOWER_INCLUDE_RESTARTING: true
+      WATCHTOWER_HTTP_API_UPDATE: true
+      WATCHTOWER_HTTP_API_TOKEN: patriktoken
+      WATCHTOWER_NOTIFICATION_URL: generic://127.0.0.1:8000/api/update_report?template=json&disabletls=yes
+      WATCHTOWER_NOTIFICATION_REPORT: "true"
+      WATCHTOWER_NOTIFICATION_TEMPLATE: |
+        {{- if .Report -}}
+          {{- with .Report -}}
+        {{len .Scanned}} Scanned, {{len .Updated}} Updated, {{len .Failed}} Failed
+              {{- range .Updated}}
+        - {{.Name}} ({{.ImageName}}): {{.CurrentImageID.ShortID}} updated to {{.LatestImageID.ShortID}}
+              {{- end -}}
+              {{- range .Fresh}}
+        - {{.Name}} ({{.ImageName}}): {{.State}}
+            {{- end -}}
+            {{- range .Skipped}}
+        - {{.Name}} ({{.ImageName}}): {{.State}}: {{.Error}}
+            {{- end -}}
+            {{- range .Failed}}
+        - {{.Name}} ({{.ImageName}}): {{.State}}: {{.Error}}
+            {{- end -}}
+          {{- end -}}
+        {{- else -}}
+          {{range .Entries -}}{{.Message}}{{"\n"}}{{- end -}}
+        {{- end -}}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "diun.enable=false"
+      - com.centurylinklabs.watchtower.enable=false
+    network_mode: "host"
+    depends_on:
+      - patrik-server
+      - db
+      - patrik-mimic
+      - patrik-say
+  
+  diun:
+    image: crazymax/diun:latest
+    command: serve
+    volumes:
+      - "./data:/data"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      - "TZ=Europe/Moscow"
+      - "LOG_LEVEL=info"
+      - "LOG_JSON=true"
+      - "DIUN_WATCH_WORKERS=20"
+      - "DIUN_WATCH_SCHEDULE=*/30 * * * *"
+      - "DIUN_WATCH_JITTER=30s"
+      - "DIUN_WATCH_RUNONSTARTUP=true"
+      - "DIUN_PROVIDERS_DOCKER=true"
+      - "DIUN_DEFAULTS_WATCHREPO=true"
+      - "DIUN_DEFAULTS_NOTIFYON=new,update"
+      - "DIUN_PROVIDERS_DOCKER_WATCHBYDEFAULT=true"
+      - "DIUN_NOTIF_WEBHOOK_ENDPOINT=http://127.0.0.1:8000/api/update_report"
+      - "DIUN_NOTIF_WEBHOOK_METHOD=POST"
+      - "DIUN_NOTIF_WEBHOOK_HEADERS_CONTENT-TYPE=application/json"
+      - "DIUN_NOTIF_WEBHOOK_TIMEOUT=5s"
+    labels:
+      - com.centurylinklabs.watchtower.enable=false
+    restart: always
+    depends_on:
+      - patrik-server
+      - db
+      - patrik-mimic
+      - patrik-say
+      - watchtower
