@@ -7,7 +7,7 @@ services:
     environment:
       - PULSE_SERVER=""
       - PULSE_COOKIE=""
-    # volumes:
+    ## volumes:
     #   - /tmp/pulseaudio.socket:/tmp/pulseaudio.socket
     #   - /tmp/pulseaudio.client.conf:/etc/pulse/client.conf
     user: "1000:1000"
