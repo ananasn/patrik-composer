@@ -203,37 +203,7 @@ services:
       - patrik-say
   
   # diun:
-  #   image diun:
   #   image: crazymax/diun:latest
-  #   command: serve
-  #   volumes:
-  #     - "./data:/data"
-  #     - "/var/run/docker.sock:/var/run/docker.sock"
-  #   environment:
-  #     - "TZ=Europe/Moscow"
-  #     - "LOG_LEVEL=info"
-  #     - "LOG_JSON=true"
-  #     - "DIUN_WATCH_WORKERS=20"
-  #     - "DIUN_WATCH_SCHEDULE=*/30 * * * *"
-  #     - "DIUN_WATCH_JITTER=30s"
-  #     - "DIUN_WATCH_RUNONSTARTUP=true"
-  #     - "DIUN_PROVIDERS_DOCKER=true"
-  #     - "DIUN_DEFAULTS_WATCHREPO=true"
-  #     - "DIUN_DEFAULTS_NOTIFYON=new,update"
-  #     - "DIUN_PROVIDERS_DOCKER_WATCHBYDEFAULT=true"
-  #     - "DIUN_NOTIF_WEBHOOK_ENDPOINT=http://127.0.0.1:8000/api/update_report"
-  #     - "DIUN_NOTIF_WEBHOOK_METHOD=POST"
-  #     - "DIUN_NOTIF_WEBHOOK_HEADERS_CONTENT-TYPE=application/json"
-  #     - "DIUN_NOTIF_WEBHOOK_TIMEOUT=5s"
-  #   labels:
-  #     - com.centurylinklabs.watchtower.enable=false
-  #   restart: always
-  #   depends_on:
-  #     - patrik-server
-  #     - db
-  #     - patrik-mimic
-  #     - patrik-say
-  #     - watchtower: crazymax/diun:latest
   #   command: serve
   #   volumes:
   #     - "./data:/data"
