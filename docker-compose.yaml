@@ -233,3 +233,6 @@ services:
       - patrik-mimic
       - patrik-say
       - watchtower
+      
+  hello_world:
+    image: hello-world
