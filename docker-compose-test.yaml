@@ -7,8 +7,8 @@ services:
     devices: 
       - "/dev/ttyS0:/dev/ttyS0"
     volumes:
-       - /home/orangepi/patrik/patrik-api/media:/home/orangepi/patrik_server/media
-       -  /home/orangepi/patrik/pipes:/hostpipe
+       - /home/god/patrik-test/patrik-api/media:/home/orangepi/patrik_server/media
+       - /home/god/patrik-test/pipes:/hostpipe
     user: "1000:1000"
     group_add:
        - dialout
