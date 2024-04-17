@@ -1,0 +1,112 @@
+version: '3.8'
+services:
+
+  patrik-server:
+    image: ananasn/patrik:orange
+    container_name: patrik-server
+    devices: 
+      - "/dev/ttyS0:/dev/ttyS0"
+    volumes:
+       - /home/orangepi/patrik/patrik-api/media:/home/orangepi/patrik_server/media
+       -  /home/orangepi/patrik/pipes:/hostpipe
+    user: "1000:1000"
+    group_add:
+       - dialout
+    restart: always
+    network_mode: "host"
+  
+  db:
+    image: postgres
+    container_name: patrik-db
+    ports:  
+      - "5432:5432"
+    restart: always
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data  
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+    labels:
+      - com.centurylinklabs.watchtower.enable=false
+ 
+  patrik-front:
+    image: ananasn/patrik_front:test
+    container_name: patrik-front
+    restart: always
+    network_mode: "host"
+    environment:
+      - "NGINX_PORT=8003"
+    volumes:
+       - ./templates:/etc/nginx/templates
+
+  
+  patrik-mimic:
+    image: ananasn/patrik_mimic:test
+    container_name: patrik-mimic
+    restart: always
+    network_mode: "host"
+    depends_on: 
+      - patrik-server
+    
+  
+  patrik-stream:
+    image: ananasn/patrik_stream:orange
+    container_name: patrik-stream
+    privileged: true
+    restart: always
+    network_mode: "host"
+
+
+  patrik-schedule:
+    image: ananasn/patrik_schedule:test
+    container_name: patrik-schedule
+    restart: always
+    depends_on:
+      - patrik-server
+      - db
+      - patrik-mimic
+    network_mode: "host"
+
+
+  watchtower:
+    image: containrrr/watchtower
+    environment:
+      WATCHTOWER_CLEANUP: true
+      WATCHTOWER_REMOVE_VOLUMES: true
+      WATCHTOWER_DEBUG: true
+      WATCHTOWER_TRACE: true
+      WATCHTOWER_INCLUDE_RESTARTING: true
+      WATCHTOWER_HTTP_API_UPDATE: true
+      WATCHTOWER_HTTP_API_TOKEN: patriktoken
+      WATCHTOWER_NOTIFICATION_URL: generic://127.0.0.1:8000/api/update_report?template=json&disabletls=yes
+      WATCHTOWER_NOTIFICATION_REPORT: "true"
+      WATCHTOWER_NOTIFICATION_TEMPLATE: |
+        {{- if .Report -}}
+          {{- with .Report -}}
+        {{len .Scanned}} Scanned, {{len .Updated}} Updated, {{len .Failed}} Failed
+              {{- range .Updated}}
+        - {{.Name}} ({{.ImageName}}): {{.CurrentImageID.ShortID}} updated to {{.LatestImageID.ShortID}}
+              {{- end -}}
+              {{- range .Fresh}}
+        - {{.Name}} ({{.ImageName}}): {{.State}}
+            {{- end -}}
+            {{- range .Skipped}}
+        - {{.Name}} ({{.ImageName}}): {{.State}}: {{.Error}}
+            {{- end -}}
+            {{- range .Failed}}
+        - {{.Name}} ({{.ImageName}}): {{.State}}: {{.Error}}
+            {{- end -}}
+          {{- end -}}
+        {{- else -}}
+          {{range .Entries -}}{{.Message}}{{"\n"}}{{- end -}}
+        {{- end -}}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "diun.enable=false"
+      - com.centurylinklabs.watchtower.enable=false
+    network_mode: "host"
+    depends_on:
+      - patrik-server
+      - db
+      - patrik-mimic
+  
