@@ -2,7 +2,7 @@ version: '3.8'
 services:
 
   patrik-server:
-    image: ananasn/patrik:orange
+    image: ananasn/patrik:test
     container_name: patrik-server
     devices: 
       - "/dev/ttyS0:/dev/ttyS0"
@@ -49,7 +49,7 @@ services:
     
   
   patrik-stream:
-    image: ananasn/patrik_stream:orange
+    image: ananasn/patrik_stream:test
     container_name: patrik-stream
     privileged: true
     restart: always
