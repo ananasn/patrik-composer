@@ -2,43 +2,18 @@ version: '3.8'
 services:
 
   patrik-server:
-    image: ananasn/patrik:orange
+    image: ananasn/patrik:test
     container_name: patrik-server
     devices: 
       - "/dev/ttyS0:/dev/ttyS0"
     volumes:
-       - /home/orangepi/patrik/patrik-api/media:/home/orangepi/patrik_server/media
-       -  /home/orangepi/patrik/pipes:/hostpipe
+       - /home/god/patrik-test/patrik-api/media:/home/orangepi/patrik_server/media
+       - /home/god/patrik-test/pipes:/hostpipe
     user: "1000:1000"
     group_add:
        - dialout
     restart: always
     network_mode: "host"
-
-    
-  patrik-say:
-    image: ananasn/patrik_say:orange
-    container_name: patrik-say
-    privileged: true
-    #devices: 
-    #  - "dev/snd:/dev/snd"
-    environment:
-      - PULSE_SERVER=unix:/tmp/pulse-socket
-      - PULSE_COOKIE=/home/orangepi/.config/pulse/cookie
-    volumes:
-      # - /run/user/1000/pulse/native:/run/user/1000/pulse/native
-       - /tmp:/tmp # dir with pulseaudio socket 
-       - /home/orangepi/patrik/pulse-conf/client.conf:/etc/pulse/client.conf # special conf for docker pulse client
-       - /home/orangepi/.config/pulse/:/home/orangepi/.config/pulse/ # dor with pulseaudio cookies
-      # - /etc/alsa:/etc/alsa
-      # - /usr/share/alsa:/usr/share/alsa
-    group_add:
-      - audio
-      - pulse
-    restart: always
-    user: "1000:1000"
-    network_mode: "host" 
-
   
   db:
     image: postgres
@@ -54,7 +29,7 @@ services:
       - com.centurylinklabs.watchtower.enable=false
  
   patrik-front:
-    image: ananasn/patrik_front:orange
+    image: ananasn/patrik_front:test
     container_name: patrik-front
     restart: always
     network_mode: "host"
@@ -65,7 +40,7 @@ services:
 
   
   patrik-mimic:
-    image: ananasn/patrik_mimic:orange
+    image: ananasn/patrik_mimic:test
     container_name: patrik-mimic
     restart: always
     network_mode: "host"
@@ -74,87 +49,21 @@ services:
     
   
   patrik-stream:
-    image: ananasn/patrik_stream:orange
+    image: ananasn/patrik_stream:test
     container_name: patrik-stream
     privileged: true
-    devices: 
-      - "dev/video0:/dev/video0"
     restart: always
-    network_mode: "host"
-
-
-  patrik-speech:
-    image: ananasn/patrik_speech:orange
-    container_name: patrik-speech
-    privileged: true
-     #devices: 
-     #  - "dev/snd:/dev/snd"
-    environment:
-      - PULSE_SERVER=unix:/tmp/pulse-socket
-      - PULSE_COOKIE=/home/orangepi/.config/pulse/cookie
-    volumes:
-       # - /run/user/1000/pulse/native:/run/user/1000/pulse/native
-       - /tmp:/tmp # dir with pulseaudio socket 
-       - /home/orangepi/patrik/pulse-conf/client.conf:/etc/pulse/client.conf # special conf for docker pulse client
-       - /home/orangepi/.config/pulse/:/home/orangepi/.config/pulse/ # dor with pulseaudio cookies
-       # - /etc/alsa:/etc/alsa
-       # - /usr/share/alsa:/usr/share/alsa
-    group_add:
-       - audio
-       - pulse
-    restart: always
-    user: "1000:1000"
-    network_mode: "host"
-
-
-  # llama-gpt-api:
-  #   # Pin the image to llama-cpp-python 0.1.78 to avoid ggml => gguf breaking changes
-  #   image: ghcr.io/abetlen/llama-cpp-python:latest@sha256:b6d21ff8c4d9baad65e1fa741a0f8c898d68735fff3f3cd777e3f0c6a1839dd4
-  #   restart: on-failure
-  #   volumes:
-  #     - '../llama-gpt/models:/models'
-  #     - '../llama-gpt/api:/api'
-  #   ports:
-  #     - 3001:8005
-  #   environment:
-  #     PORT: 8005
-  #     MODEL: '/models/llama-2-7b-chat.bin'
-  #     MODEL_DOWNLOAD_URL: '${MODEL_DOWNLOAD_URL:-https://huggingface.co/TheBloke/Nous-Hermes-Llama-2-7B-GGML/resolve/main/nous-hermes-llama-2-7b.ggmlv3.q4_0.bin}'
-  #     N_GQA: '${N_GQA:-1}'
-  #     USE_MLOCK: 1
-  #   cap_add:
-  #     - IPC_LOCK
-  #   network_mode: "host"
-  #   command: '/bin/sh /api/run.sh --model /models/llama-2-7b-chat.bin '
-
-  patrik-face:
-    image: ananasn/patrik_face:orange
-    container_name: patrik-face
-    restart: always
-    depends_on:
-      - patrik-stream
-    network_mode: "host"
-    labels:
-      - "com.centurylinklabs.watchtower.monitor-only=true"
-
-  patrik-gesture:
-    image: ananasn/patrik_gesture:orange
-    container_name: patrik-gesture
-    restart: always
-    depends_on:
-      - patrik-stream
     network_mode: "host"
 
 
   patrik-schedule:
-    image: ananasn/patrik_schedule:orange
+    image: ananasn/patrik_schedule:test
     container_name: patrik-schedule
     restart: always
     depends_on:
       - patrik-server
       - db
       - patrik-mimic
-      - patrik-say
     network_mode: "host"
 
 
@@ -200,36 +109,4 @@ services:
       - patrik-server
       - db
       - patrik-mimic
-      - patrik-say
   
-  # diun:
-  #   image: crazymax/diun:latest
-  #   command: serve
-  #   volumes:
-  #     - "./data:/data"
-  #     - "/var/run/docker.sock:/var/run/docker.sock"
-  #   environment:
-  #     - "TZ=Europe/Moscow"
-  #     - "LOG_LEVEL=info"
-  #     - "LOG_JSON=true"
-  #     - "DIUN_WATCH_WORKERS=20"
-  #     - "DIUN_WATCH_SCHEDULE=*/30 * * * *"
-  #     - "DIUN_WATCH_JITTER=30s"
-  #     - "DIUN_WATCH_RUNONSTARTUP=true"
-  #     - "DIUN_PROVIDERS_DOCKER=true"
-  #     - "DIUN_DEFAULTS_WATCHREPO=true"
-  #     - "DIUN_DEFAULTS_NOTIFYON=new,update"
-  #     - "DIUN_PROVIDERS_DOCKER_WATCHBYDEFAULT=true"
-  #     - "DIUN_NOTIF_WEBHOOK_ENDPOINT=http://127.0.0.1:8000/api/update_report"
-  #     - "DIUN_NOTIF_WEBHOOK_METHOD=POST"
-  #     - "DIUN_NOTIF_WEBHOOK_HEADERS_CONTENT-TYPE=application/json"
-  #     - "DIUN_NOTIF_WEBHOOK_TIMEOUT=5s"
-  #   labels:
-  #     - com.centurylinklabs.watchtower.enable=false
-  #   restart: always
-  #   depends_on:
-  #     - patrik-server
-  #     - db
-  #     - patrik-mimic
-  #     - patrik-say
-  #     - watchtower
