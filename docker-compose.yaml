@@ -38,6 +38,8 @@ services:
     restart: always
     user: "1000:1000"
     network_mode: "host" 
+    depends_on: 
+      - patrik-speech
 
   
   db:
@@ -107,26 +109,6 @@ services:
     network_mode: "host"
 
 
-  # llama-gpt-api:
-  #   # Pin the image to llama-cpp-python 0.1.78 to avoid ggml => gguf breaking changes
-  #   image: ghcr.io/abetlen/llama-cpp-python:latest@sha256:b6d21ff8c4d9baad65e1fa741a0f8c898d68735fff3f3cd777e3f0c6a1839dd4
-  #   restart: on-failure
-  #   volumes:
-  #     - '../llama-gpt/models:/models'
-  #     - '../llama-gpt/api:/api'
-  #   ports:
-  #     - 3001:8005
-  #   environment:
-  #     PORT: 8005
-  #     MODEL: '/models/llama-2-7b-chat.bin'
-  #     MODEL_DOWNLOAD_URL: '${MODEL_DOWNLOAD_URL:-https://huggingface.co/TheBloke/Nous-Hermes-Llama-2-7B-GGML/resolve/main/nous-hermes-llama-2-7b.ggmlv3.q4_0.bin}'
-  #     N_GQA: '${N_GQA:-1}'
-  #     USE_MLOCK: 1
-  #   cap_add:
-  #     - IPC_LOCK
-  #   network_mode: "host"
-  #   command: '/bin/sh /api/run.sh --model /models/llama-2-7b-chat.bin '
-
   patrik-face:
     image: ananasn/patrik_face:orange
     container_name: patrik-face
@@ -157,6 +139,22 @@ services:
       - patrik-say
     network_mode: "host"
 
+
+
+  patrik-updater:
+    image:  ananasn/patrik_updater:orange
+    container_name: patrik-updater
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    restart: always
+    network_mode: "host"
+    depends_on:
+      - db
+    volumes:
+      - ./migrations:/migrations
+      - ./schema:/schema
+      -  /home/orangepi/patrik/pipes:/hostpipe
+      
 
   watchtower:
     image: containrrr/watchtower
@@ -233,3 +231,25 @@ services:
   #     - patrik-mimic
   #     - patrik-say
   #     - watchtower
+
+
+  # llama-gpt-api:
+  #   # Pin the image to llama-cpp-python 0.1.78 to avoid ggml => gguf breaking changes
+  #   image: ghcr.io/abetlen/llama-cpp-python:latest@sha256:b6d21ff8c4d9baad65e1fa741a0f8c898d68735fff3f3cd777e3f0c6a1839dd4
+  #   restart: on-failure
+  #   volumes:
+  #     - '../llama-gpt/models:/models'
+  #     - '../llama-gpt/api:/api'
+  #   ports:
+  #     - 3001:8005
+  #   environment:
+  #     PORT: 8005
+  #     MODEL: '/models/llama-2-7b-chat.bin'
+  #     MODEL_DOWNLOAD_URL: '${MODEL_DOWNLOAD_URL:-https://huggingface.co/TheBloke/Nous-Hermes-Llama-2-7B-GGML/resolve/main/nous-hermes-llama-2-7b.ggmlv3.q4_0.bin}'
+  #     N_GQA: '${N_GQA:-1}'
+  #     USE_MLOCK: 1
+  #   cap_add:
+  #     - IPC_LOCK
+  #   network_mode: "host"
+  #   command: '/bin/sh /api/run.sh --model /models/llama-2-7b-chat.bin '
+
