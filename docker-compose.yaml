@@ -166,7 +166,7 @@ services:
       WATCHTOWER_INCLUDE_RESTARTING: true
       WATCHTOWER_HTTP_API_UPDATE: true
       WATCHTOWER_HTTP_API_TOKEN: patriktoken
-      WATCHTOWER_NOTIFICATION_URL: generic://127.0.0.1:8011/update_report?template=json&disabletls=yes
+      WATCHTOWER_NOTIFICATION_URL: generic://127.0.0.1:8012/update_report?template=json&disabletls=yes
       WATCHTOWER_NOTIFICATION_REPORT: "true"
       WATCHTOWER_NOTIFICATION_TEMPLATE: |
         {{- if .Report -}}
