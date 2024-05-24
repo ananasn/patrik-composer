@@ -199,7 +199,7 @@ services:
       - db
       - patrik-mimic
       - patrik-say
-  
+
   # diun:
   #   image: crazymax/diun:latest
   #   command: serve
