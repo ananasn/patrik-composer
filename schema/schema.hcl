@@ -993,7 +993,7 @@ table "patrik_triggerssettings" {
     type = character_varying(30)
   }
   column "language" {
-    null = false
+    null = true
     type = character_varying(9)
   }
   primary_key {
