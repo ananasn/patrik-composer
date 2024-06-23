@@ -505,7 +505,7 @@ table "patrik_mimicitem" {
   primary_key {
     columns = [column.id]
   }
-  foreign_key "patrik_mimicitem_mimic_id_5bf566d7_fk_patrik_mimic_id" {
+  foreign_key "patrik_mimicitem_mimic_id_5bf566d7_fk" {
     columns     = [column.mimic_id]
     ref_columns = [table.patrik_mimic.column.id]
     on_update   = NO_ACTION
@@ -567,13 +567,13 @@ table "patrik_moveexpression" {
   primary_key {
     columns = [column.id]
   }
-  foreign_key "patrik_moveexpression_move_id_2c4af1bf_fk_patrik_move_id" {
+  foreign_key "patrik_moveexpression_move_id_2c4af1bf_fk" {
     columns     = [column.move_id]
     ref_columns = [table.patrik_move.column.id]
     on_update   = NO_ACTION
     on_delete   = NO_ACTION
   }
-  foreign_key "patrik_moveexpression_script_id_3886a4a3_fk_patrik_script_id" {
+  foreign_key "patrik_moveexpression_script_id_3886a4a3_fk" {
     columns     = [column.script_id]
     ref_columns = [table.patrik_script.column.id]
     on_update   = NO_ACTION
@@ -667,13 +667,13 @@ table "patrik_pose" {
   primary_key {
     columns = [column.id]
   }
-  foreign_key "patrik_pose_mimic_id_42f94dcb_fk_patrik_mimic_id" {
+  foreign_key "patrik_pose_mimic_id_42f94dcb_fk" {
     columns     = [column.mimic_id]
     ref_columns = [table.patrik_mimic.column.id]
     on_update   = NO_ACTION
     on_delete   = NO_ACTION
   }
-  foreign_key "patrik_pose_move_id_01c897bf_fk_patrik_move_id" {
+  foreign_key "patrik_pose_move_id_01c897bf_fk" {
     columns     = [column.move_id]
     ref_columns = [table.patrik_move.column.id]
     on_update   = NO_ACTION
@@ -743,18 +743,6 @@ table "patrik_script_triggers" {
   }
   primary_key {
     columns = [column.id]
-  }
-  foreign_key "patrik_script_triggers_script_id_a25e2949_fk_patrik_script_id" {
-    columns     = [column.script_id]
-    ref_columns = [table.patrik_script.column.id]
-    on_update   = NO_ACTION
-    on_delete   = NO_ACTION
-  }
-  foreign_key "patrik_script_triggers_trigger_id_443f3fbf_fk_patrik_trigger_id" {
-    columns     = [column.trigger_id]
-    ref_columns = [table.patrik_trigger.column.id]
-    on_update   = NO_ACTION
-    on_delete   = NO_ACTION
   }
   index "patrik_script_triggers_script_id_a25e2949" {
     columns = [column.script_id]
@@ -942,6 +930,14 @@ table "patrik_trigger" {
     null = true
     type = text
   }
+  column "range_lower" {
+    null = true
+    type = integer
+  }
+  column "range_upper" {
+    null = true
+    type = integer
+  }
   primary_key {
     columns = [column.id]
   }
@@ -995,6 +991,10 @@ table "patrik_triggerssettings" {
   column "activation_word" {
     null = true
     type = character_varying(30)
+  }
+  column "language" {
+    null = false
+    type = character_varying(9)
   }
   primary_key {
     columns = [column.id]
