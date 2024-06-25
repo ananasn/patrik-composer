@@ -996,6 +996,38 @@ table "patrik_triggerssettings" {
     null = false
     type = character_varying(9)
   }
+  column "face_delay" {
+    null = true
+    type = integer
+  }
+  column "gesture_delay" {
+    null = true
+    type = integer
+  }
+  column "human_delay" {
+    null = true
+    type = integer
+  }
+  column "move_delay" {
+    null = true
+    type = integer
+  }
+  column "movement_enable" {
+    null = false
+    type = boolean
+  }
+  column "tg_chat" {
+    null = true
+    type = character_varying(50)
+  }
+  column "tg_token" {
+    null = true
+    type = character_varying(50)
+  }
+  column "tracking_enable" {
+    null = false
+    type = boolean
+  }
   primary_key {
     columns = [column.id]
   }
