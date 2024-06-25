@@ -993,7 +993,7 @@ table "patrik_triggerssettings" {
     type = character_varying(30)
   }
   column "language" {
-    null = true
+    null = false
     type = character_varying(9)
   }
   column "face_delay" {
