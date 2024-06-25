@@ -1013,7 +1013,8 @@ table "patrik_triggerssettings" {
     type = integer
   }
   column "movement_enable" {
-    null = false
+    null = true
+    default = true
     type = boolean
   }
   column "tg_chat" {
@@ -1025,7 +1026,8 @@ table "patrik_triggerssettings" {
     type = character_varying(50)
   }
   column "tracking_enable" {
-    null = false
+    null = true
+    default = true
     type = boolean
   }
   primary_key {
